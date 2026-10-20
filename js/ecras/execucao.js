@@ -1,25 +1,25 @@
 // ============================================================
 // execucao.js - Ecrã 2: Execução (o jogo propriamente dito).
-// Fase 2B: drone, carros, partículas de poluição, aspiração e colisões.
+// Fase 3: tempo, pontuação, AQI, vitória e derrota.
 // ============================================================
 
-// Botão TEMPORÁRIO para testar a ida para o resultado.
-// Não uso teclado porque o enunciado só permite microfone + rato.
-const botaoTerminar = new Botao("Terminar (teste)", 240, 48);
-
-// Estado do jogo em execução (tudo é recriado em iniciarExecucao)
+// Estado da partida em curso (tudo é recriado em iniciarExecucao)
 let drone;              // o drone do jogador
 let carros = [];        // lista de carros na estrada
 let particulas = [];    // lista de partículas de poluição em jogo
+let aqi;                // índice de qualidade do ar (BarraAQI)
 let proximoSpawn = 0;   // instante (em ms) em que nasce a próxima partícula
-let pontuacao = 0;      // provisório: a fase 3 organiza a pontuação e o AQI
+let inicioJogo = 0;     // instante (em ms) em que a partida começou
+let tempoRestante = DURACAO_JOGO;   // segundos que faltam
+let pontuacao = 0;
 let aspiradas = 0;      // quantas partículas já aspirou
 let escapadas = 0;      // quantas escaparam para o céu
 
 // Chamada UMA vez de cada vez que se entra no ecrã de execução
-// (ver mudarEstado em sketch.js). Prepara um jogo novo do zero.
+// (ver mudarEstado em sketch.js). Prepara uma partida nova do zero.
 function iniciarExecucao() {
   drone = new Drone();
+  aqi = new BarraAQI();
   particulas = [];
   carros = [];
   for (let i = 0; i < NUM_CARROS; i++) {
@@ -28,6 +28,8 @@ function iniciarExecucao() {
   pontuacao = 0;
   aspiradas = 0;
   escapadas = 0;
+  inicioJogo = millis();           // millis() = milissegundos desde que o sketch arrancou
+  tempoRestante = DURACAO_JOGO;
   proximoSpawn = millis() + 500;   // primeira partícula daqui a meio segundo
 }
 
@@ -48,6 +50,9 @@ function gerarParticula() {
 
 function desenharExecucao() {
   // ---------- 1. ATUALIZAR o mundo ----------
+  // O tempo que falta é a duração total menos o tempo já passado (ms -> s)
+  tempoRestante = DURACAO_JOGO - (millis() - inicioJogo) / 1000;
+
   for (const c of carros) {
     c.atualizar();
   }
@@ -63,9 +68,9 @@ function desenharExecucao() {
   drone.definirPotencia(mouseIsPressed ? 1 : 0);
   drone.atualizar();
 
-  // Percorremos a lista AO CONTRÁRIO (do fim para o princípio) porque podemos
-  // remover elementos com splice(). Se fosse do princípio para o fim, ao remover
-  // um elemento os seguintes "andavam uma casa" e saltávamos um sem o verificar.
+  // Percorremos a lista AO CONTRÁRIO porque podemos remover elementos com splice():
+  // se fosse do princípio para o fim, ao remover um elemento os seguintes
+  // "andavam uma casa" e saltávamos um sem o verificar.
   for (let i = particulas.length - 1; i >= 0; i--) {
     const p = particulas[i];
     p.atualizar(drone);
@@ -73,42 +78,54 @@ function desenharExecucao() {
     if (p.tocouNoDrone(drone)) {
       pontuacao += p.pontos();
       aspiradas++;
-      particulas.splice(i, 1);       // remove 1 elemento na posição i
+      aqi.particulaAspirada(p);      // o ar melhora
+      particulas.splice(i, 1);
     } else if (p.escapou()) {
       escapadas++;
+      aqi.particulaEscapou(p);       // o ar piora
       particulas.splice(i, 1);
     }
   }
 
-  // ---------- 2. DESENHAR (o que vem depois fica por cima) ----------
+  aqi.atualizar();
+
+  // ---------- 2. VERIFICAR O FIM DA PARTIDA ----------
+  // A derrota por AQI máximo tem prioridade sobre o resto.
+  if (aqi.atingiuMaximo()) {
+    terminarJogo(false, "A poluição chegou ao limite máximo.");
+    return;   // sai já: não vale a pena desenhar mais um frame da execução
+  }
+  if (tempoRestante <= 0) {
+    if (aqi.abaixoDoLimite()) {
+      terminarJogo(true, "O tempo acabou e o AQI ficou abaixo da meta!");
+    } else {
+      terminarJogo(false, "O tempo acabou, mas o AQI ficou acima da meta.");
+    }
+    return;
+  }
+
+  // ---------- 3. DESENHAR (o que vem depois fica por cima) ----------
   desenharCidade();
   for (const c of carros) c.desenhar();
   for (const p of particulas) p.desenhar();
   drone.desenhar();
-
-  desenharInfoProvisoria();
-
-  botaoTerminar.posicionar(width / 2, height * 0.08);
-  botaoTerminar.desenhar();
+  desenharHUD(tempoRestante, pontuacao, aqi);
 }
 
-// TEMPORÁRIO: mostra os contadores para vermos que tudo funciona.
-// A fase 3 substitui isto pelo HUD final (tempo, pontuação e barra de AQI).
-function desenharInfoProvisoria() {
-  push();
-  fill(COR.texto);
-  noStroke();
-  textSize(18);
-  textAlign(LEFT, TOP);
-  text("Pontos: " + pontuacao, MARGEM, MARGEM);
-  text("Aspiradas: " + aspiradas, MARGEM, MARGEM + 26);
-  text("Escaparam: " + escapadas, MARGEM, MARGEM + 52);
-  text("Em jogo: " + particulas.length + " / " + PARTICULAS_MAX, MARGEM, MARGEM + 78);
-  pop();
+// Guarda os dados finais e passa ao ecrã de resultado.
+function terminarJogo(vitoria, motivo) {
+  dadosResultado = {
+    vitoria: vitoria,
+    motivo: motivo,
+    pontos: pontuacao,
+    tempo: constrain((millis() - inicioJogo) / 1000, 0, DURACAO_JOGO),
+    aqi: aqi.valor,
+    aspiradas: aspiradas,
+    escapadas: escapadas
+  };
+  mudarEstado(RESULTADO);
 }
 
+// Durante o jogo não há botões: o rato controla o drone.
 function cliqueExecucao() {
-  if (botaoTerminar.contem(mouseX, mouseY)) {
-    mudarEstado(RESULTADO);
-  }
 }
