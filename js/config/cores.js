@@ -1,5 +1,3 @@
-
-
 // ============================================================
 // cores.js - Paleta de cores num só sítio.
 // Para mudar o visual do jogo basta mexer aqui.
@@ -24,5 +22,10 @@ const COR = {
 
   // Drone (fase 2)
   drone:       [230, 240, 248],
-  droneBraco:  [150, 175, 195]
+  droneBraco:  [150, 175, 195],
+
+  // Poluição e carros (fase 2B)
+  particula:   [55, 50, 48],      // fumo escuro
+  particulaContorno: [190, 180, 170],   // contorno claro para se ver sobre o céu escuro
+  carros:      [[200, 70, 70], [70, 120, 200], [230, 190, 70], [190, 190, 200]]
 };

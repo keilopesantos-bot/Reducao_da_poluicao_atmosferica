@@ -34,3 +34,25 @@ const PREDIOS = [
 const DRONE_RAIO              = 26;    // raio do corpo (px)
 const DRONE_SUAVIDADE         = 0.15;  // 0 = não se mexe, 1 = cola-se ao rato
 const DRONE_RAIO_ASPIRACAO_MAX = 160;  // raio máximo de aspiração (px), com potência 1
+
+// ---------- Partículas de poluição (fase 2B) ----------
+// ALEATORIEDADE CONTROLADA: cada partícula é aleatória (tamanho, velocidade,
+// origem), mas sempre dentro dos intervalos [mín, máx] definidos aqui, e
+// nunca há mais do que PARTICULAS_MAX em simultâneo.
+const PARTICULAS_MAX      = 40;    // limite máximo em simultâneo
+const SPAWN_INTERVALO_MIN = 250;   // tempo mínimo entre partículas novas (ms)
+const SPAWN_INTERVALO_MAX = 700;   // tempo máximo (ms)
+const PROB_FABRICA        = 0.6;   // 60% nascem em fábricas, 40% em carros
+const PARTICULA_DERIVA    = 0.4;   // desvio lateral máximo (vento), px por frame
+const ASPIRACAO_FORCA     = 5;     // velocidade (px por frame) a que o drone puxa
+
+// Características por origem. As das fábricas são maiores (valem mais pontos).
+const PARTICULA = {
+  fabrica: { raioMin: 9, raioMax: 18, velMin: 0.5, velMax: 1.3 },
+  carro:   { raioMin: 5, raioMax: 10, velMin: 0.8, velMax: 1.8 }
+};
+
+// ---------- Carros ----------
+const NUM_CARROS    = 5;
+const CARRO_VEL_MIN = 1.5;   // px por frame
+const CARRO_VEL_MAX = 3.5;
