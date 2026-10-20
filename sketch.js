@@ -43,6 +43,12 @@ function mousePressed() {
 
 // Ponto único de mudança de estado. Mais tarde é aqui que vamos
 // reiniciar o tempo, a pontuação e o AQI ao entrar em EXECUCAO.
+// Ponto único de mudança de estado.
 function mudarEstado(novoEstado) {
+  // Ao entrar na execução prepara-se um jogo novo (drone, e mais tarde
+  // partículas, tempo, pontuação e AQI).
+  if (novoEstado === EXECUCAO) {
+    iniciarExecucao();
+  }
   estado = novoEstado;
 }
