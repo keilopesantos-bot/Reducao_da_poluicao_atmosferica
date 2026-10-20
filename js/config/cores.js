@@ -27,5 +27,12 @@ const COR = {
   // Poluição e carros (fase 2B)
   particula:   [55, 50, 48],      // fumo escuro
   particulaContorno: [190, 180, 170],   // contorno claro para se ver sobre o céu escuro
-  carros:      [[200, 70, 70], [70, 120, 200], [230, 190, 70], [190, 190, 200]]
+  carros:      [[200, 70, 70], [70, 120, 200], [230, 190, 70], [190, 190, 200]],
+
+// Barra de AQI e alertas (fase 3)
+  aqiBom:      [80, 200, 120],    // ar limpo
+  aqiMedio:    [240, 200, 70],
+  aqiMau:      [230, 80, 70],     // ar muito poluído
+  alerta:      [240, 90, 80]
+
 };

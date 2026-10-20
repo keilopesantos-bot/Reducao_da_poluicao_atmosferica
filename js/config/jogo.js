@@ -56,3 +56,14 @@ const PARTICULA = {
 const NUM_CARROS    = 5;
 const CARRO_VEL_MIN = 1.5;   // px por frame
 const CARRO_VEL_MAX = 3.5;
+
+// ---------- Regras do jogo (fase 3) ----------
+const DURACAO_JOGO       = 60;     // duração da partida, em segundos
+const AQI_MAX            = 100;    // DERROTA se o AQI chegar a este valor
+const AQI_INICIAL        = 30;     // AQI no início da partida
+const AQI_LIMITE_VITORIA = 50;     // VITÓRIA se o tempo acabar com o AQI abaixo disto
+const AQI_POR_ESCAPE     = 0.09;   // AQI que sobe por cada unidade de tamanho que escapa
+const AQI_POR_ASPIRACAO  = 0.04;   // AQI que desce por cada unidade de tamanho aspirada
+
+// ---------- Interface durante o jogo ----------
+const HUD_ALTURA = 68;             // altura da faixa de informação no topo (px)
