@@ -35,8 +35,7 @@ class Drone {
     // constrain(valor, min, max) impede que o drone saia da zona de jogo:
     // nos lados, no topo e em baixo (não entra no chão da cidade).
     this.x = constrain(this.x, this.raio, width - this.raio);
-    this.y = constrain(this.y, this.raio, height * SOLO_Y - this.raio);
-
+    this.y = constrain(this.y, HUD_ALTURA + this.raio, height * SOLO_Y - this.raio);
     // As hélices giram mais depressa com a ventoinha ligada
     this.anguloHelice += 0.5 + this.potencia * 0.8;
   }
