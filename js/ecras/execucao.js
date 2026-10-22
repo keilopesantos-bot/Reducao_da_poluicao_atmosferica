@@ -1,6 +1,7 @@
 // ============================================================
 // execucao.js - Ecrã 2: Execução (o jogo propriamente dito).
 // Fase 3: tempo, pontuação, AQI, vitória e derrota.
+// Fase 4: a ventoinha é controlada pelo microfone.
 // ============================================================
 
 // Estado da partida em curso (tudo é recriado em iniciarExecucao)
@@ -63,9 +64,13 @@ function desenharExecucao() {
     proximoSpawn = millis() + random(SPAWN_INTERVALO_MIN, SPAWN_INTERVALO_MAX);
   }
 
-  // TEMPORÁRIO: rato premido = ventoinha à potência máxima.
-  // Na fase 4 isto passa a ser o volume do microfone.
-  drone.definirPotencia(mouseIsPressed ? 1 : 0);
+  // A ventoinha é controlada pelo volume do microfone (já com calibração e histerese).
+  // Só se o microfone não estiver disponível é que se usa o rato premido como alternativa.
+  if (microfone.estado === "pronto") {
+    drone.definirPotencia(microfone.potencia);
+  } else {
+    drone.definirPotencia(mouseIsPressed ? 1 : 0);
+  }
   drone.atualizar();
 
   // Percorremos a lista AO CONTRÁRIO porque podemos remover elementos com splice():
@@ -110,6 +115,9 @@ function desenharExecucao() {
   for (const p of particulas) p.desenhar();
   drone.desenhar();
   desenharHUD(tempoRestante, pontuacao, aqi);
+  if (microfone.estado === "pronto") {
+    microfone.desenharPainel(width / 2 - 130, height - 46, 260);   // em baixo, ao centro
+  }
 }
 
 // Guarda os dados finais e passa ao ecrã de resultado.
