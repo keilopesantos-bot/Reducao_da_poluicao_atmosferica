@@ -5,10 +5,12 @@
 // ============================================================
 
 let estado = INICIO;   // estado atual do jogo (só um de cada vez)
+let microfone;         // entrada de áudio, partilhada por todos os ecrãs
 
 // setup() corre UMA vez no arranque.
 function setup() {
   createCanvas(windowWidth, windowHeight);   // canvas = janela inteira
+  microfone = new Microfone();               // ainda inativo: só liga quando o jogador clicar
 }
 
 // Se o utilizador redimensionar a janela, o canvas acompanha.
@@ -20,6 +22,8 @@ function windowResized() {
 function draw() {
   background(COR.fundo);
   cursor(ARROW);   // por defeito seta; os botões mudam para mão se o rato estiver sobre eles
+
+  microfone.atualizar();   // lê o volume e aplica calibração/histerese, em qualquer ecrã
 
   // Máquina de estados: em cada frame só se desenha o ecrã do estado atual.
   switch (estado) {
@@ -41,12 +45,10 @@ function mousePressed() {
   }
 }
 
-// Ponto único de mudança de estado. Mais tarde é aqui que vamos
-// reiniciar o tempo, a pontuação e o AQI ao entrar em EXECUCAO.
 // Ponto único de mudança de estado.
 function mudarEstado(novoEstado) {
-  // Ao entrar na execução prepara-se um jogo novo (drone, e mais tarde
-  // partículas, tempo, pontuação e AQI).
+  // Ao entrar na execução prepara-se um jogo novo (drone, partículas,
+  // tempo, pontuação e AQI).
   if (novoEstado === EXECUCAO) {
     iniciarExecucao();
   }
