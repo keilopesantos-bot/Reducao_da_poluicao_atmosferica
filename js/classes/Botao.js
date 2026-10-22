@@ -8,8 +8,9 @@ class Botao {
     this.texto = texto;
     this.w = largura;
     this.h = altura;
-    this.x = 0;  // centro do botão; é definido por posicionar()
+    this.x = 0;       // centro do botão; é definido por posicionar()
     this.y = 0;
+    this.ativo = true;   // um botão inativo aparece cinzento e não responde ao clique
   }
 
   // Posiciona o centro do botão. Chamamos isto em cada frame porque
@@ -25,16 +26,27 @@ class Botao {
     return abs(px - this.x) < this.w / 2 && abs(py - this.y) < this.h / 2;
   }
 
+  // Clique válido: o ponto está dentro E o botão está ativo.
+  clicado(px, py) {
+    return this.ativo && this.contem(px, py);
+  }
+
   desenhar() {
-    const sobre = this.contem(mouseX, mouseY);
+    const sobre = this.ativo && this.contem(mouseX, mouseY);
     if (sobre) cursor(HAND);   // feedback visual: o cursor muda para "mão"
 
     push();                    // isola estilos: nada "vaza" para o resto do desenho
     rectMode(CENTER);
     noStroke();
-    fill(sobre ? COR.botaoHover : COR.botao);
+    if (!this.ativo) {
+      fill(COR.botaoInativo);
+    } else if (sobre) {
+      fill(COR.botaoHover);
+    } else {
+      fill(COR.botao);
+    }
     rect(this.x, this.y, this.w, this.h, 12);   // 12 = cantos arredondados
-    fill(COR.fundo);
+    fill(this.ativo ? COR.fundo : COR.rodape);
     textAlign(CENTER, CENTER);
     textSize(22);
     text(this.texto, this.x, this.y);
