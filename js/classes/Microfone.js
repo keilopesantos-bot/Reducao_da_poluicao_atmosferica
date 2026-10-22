@@ -29,7 +29,7 @@ class Microfone {
     this.potencia = 0;            // 0 (desligada) a 1 (máxima)
   }
 
-  // Pede o microfone e começa a calibrar. Tem de ser chamado a partir de um
+   // Pede o microfone e começa a calibrar. Tem de ser chamado a partir de um
   // CLIQUE: os browsers só deixam ativar o áudio depois de uma ação do utilizador.
   ativar() {
     if (this.estado === "a_pedir" || this.estado === "a_calibrar") return;
@@ -43,9 +43,26 @@ class Microfone {
     this.entrada = new p5.AudioIn();
     this.estado = "a_pedir";       // à espera de o utilizador autorizar
     this.entrada.start(
-      () => this.iniciarCalibracao(),    // autorizou
+      () => {                            // autorizou
+        this.desativarProcessamento();
+        this.iniciarCalibracao();
+      },
       () => { this.estado = "erro"; }    // recusou ou não há microfone
     );
+  }
+
+  // Por defeito o browser "melhora" o som do microfone: corta ruído constante
+  // (noiseSuppression) e ajusta o ganho aos poucos (autoGainControl). Num jogo
+  // controlado pelo VOLUME isso atrapalha: um sopro ou um "aaa" contínuo é
+  // atenuado e a ventoinha demora a ligar. Aqui pedimos o som sem esse tratamento.
+  desativarProcessamento() {
+    const pista = this.entrada.stream && this.entrada.stream.getAudioTracks()[0];
+    if (!pista) return;
+    pista.applyConstraints({
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false
+    }).catch(() => {});                  // se o browser não deixar, segue com o som normal
   }
 
   iniciarCalibracao() {

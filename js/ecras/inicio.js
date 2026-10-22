@@ -105,8 +105,10 @@ function desenharCalibracao() {
 // Chamada pelo sketch.js quando há um clique e o estado é INICIO.
 function cliqueInicio() {
   if (botaoComecar.clicado(mouseX, mouseY)) {
+    sons.desbloquear();      // garante o áudio ativo, mesmo que o microfone tenha falhado
     mudarEstado(EXECUCAO);
   } else if (microfone.estado === "inativo" && botaoAtivarMic.clicado(mouseX, mouseY)) {
+    sons.desbloquear();      // o som da cidade começa já, e por isso entra na medição do ruído
     microfone.ativar();      // este clique é o "gesto do utilizador" que o browser exige
   } else if (microfone.estado === "pronto" && botaoRecalibrar.clicado(mouseX, mouseY)) {
     microfone.ativar();      // recalibra

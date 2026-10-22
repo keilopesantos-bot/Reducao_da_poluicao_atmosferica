@@ -2,7 +2,11 @@
 // execucao.js - Ecrã 2: Execução (o jogo propriamente dito).
 // Fase 3: tempo, pontuação, AQI, vitória e derrota.
 // Fase 4: a ventoinha é controlada pelo microfone.
+// Fase 5: sons (ventoinha, recolha, vitória/derrota) e botão de silenciar.
 // ============================================================
+
+// Botão de silenciar (só com o rato). Fica na faixa do HUD, onde o drone nunca entra.
+const botaoSom = new BotaoSom(40);
 
 // Estado da partida em curso (tudo é recriado em iniciarExecucao)
 let drone;              // o drone do jogador
@@ -71,6 +75,7 @@ function desenharExecucao() {
   } else {
     drone.definirPotencia(mouseIsPressed ? 1 : 0);
   }
+  sons.atualizarVentoinha(drone.potencia);   // o som da ventoinha acompanha a aspiração
   drone.atualizar();
 
   // Percorremos a lista AO CONTRÁRIO porque podemos remover elementos com splice():
@@ -84,6 +89,7 @@ function desenharExecucao() {
       pontuacao += p.pontos();
       aspiradas++;
       aqi.particulaAspirada(p);      // o ar melhora
+      sons.tocarRecolha(p.raio);     // efeito sonoro de recolha (tom depende do tamanho)
       particulas.splice(i, 1);
     } else if (p.escapou()) {
       escapadas++;
@@ -118,6 +124,10 @@ function desenharExecucao() {
   if (microfone.estado === "pronto") {
     microfone.desenharPainel(width / 2 - 130, height - 46, 260);   // em baixo, ao centro
   }
+
+  botaoSom.posicionar(MARGEM + 140, HUD_ALTURA / 2);   // dentro da faixa do HUD, à direita da pontuação
+  botaoSom.silenciado = sons.mudo;
+  botaoSom.desenhar();
 }
 
 // Guarda os dados finais e passa ao ecrã de resultado.
@@ -131,9 +141,13 @@ function terminarJogo(vitoria, motivo) {
     aspiradas: aspiradas,
     escapadas: escapadas
   };
+  sons.tocarFim(vitoria);            // jingle de vitória ou de derrota
   mudarEstado(RESULTADO);
 }
 
-// Durante o jogo não há botões: o rato controla o drone.
+// Durante o jogo o rato controla o drone; o único botão é o de silenciar.
 function cliqueExecucao() {
+  if (botaoSom.clicado(mouseX, mouseY)) {
+    sons.alternarMudo();
+  }
 }
