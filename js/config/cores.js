@@ -10,6 +10,7 @@ const COR = {
   destaque:    [80, 200, 160],
   botao:       [80, 200, 160],
   botaoHover:  [130, 230, 195],
+  botaoInativo:[70, 85, 100],     // botão desativado (cinzento)
   rodape:      [150, 175, 195],
 
   // Cidade (fase 2)
