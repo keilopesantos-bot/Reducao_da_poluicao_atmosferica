@@ -29,7 +29,8 @@ function desenharResultado() {
       "Pontuação: " + r.pontos,
       "Tempo de jogo: " + nf(r.tempo, 1, 1) + " s",
       "AQI final: " + round(r.aqi) + "  (meta: abaixo de " + AQI_LIMITE_VITORIA + ")",
-      "Partículas aspiradas: " + r.aspiradas + "   |   Escaparam: " + r.escapadas
+      "Partículas aspiradas: " + r.aspiradas + "   |   Escaparam: " + r.escapadas,
+      "Power-ups apanhados: " + r.powerups
     ];
     for (let i = 0; i < linhas.length; i++) {
       text(linhas[i], width / 2, height * 0.38 + i * 42);

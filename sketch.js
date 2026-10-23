@@ -12,8 +12,8 @@ let sons;              // gestor dos sons do jogo (cidade, ventoinha, recolha...
 function setup() {
   createCanvas(windowWidth, windowHeight);   // canvas = janela inteira
   microfone = new Microfone();               // ainda inativo: só liga quando o jogador clicar
-    sons = new GestorSons();
-    sons.carregar();                           // carrega os ficheiros .wav (sem bloquear o arranque)
+  sons = new GestorSons();
+  sons.carregar();                           // carrega os ficheiros .wav (sem bloquear o arranque)
 }
 
 // Se o utilizador redimensionar a janela, o canvas acompanha.
@@ -27,7 +27,7 @@ function draw() {
   cursor(ARROW);   // por defeito seta; os botões mudam para mão se o rato estiver sobre eles
 
   microfone.atualizar();   // lê o volume e aplica calibração/histerese, em qualquer ecrã
-    sons.atualizar(estado);  // liga e desliga os sons de fundo conforme o ecrã
+  sons.atualizar(estado);  // liga e desliga os sons de fundo conforme o ecrã
 
   // Máquina de estados: em cada frame só se desenha o ecrã do estado atual.
   switch (estado) {

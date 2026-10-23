@@ -16,13 +16,15 @@ class Drone {
     this.potencia = 0;            // 0 = ventoinha desligada, 1 = potência máxima
     this.raioAspiracao = 0;       // alcance da aspiração, em px
     this.anguloHelice = 0;        // só para a animação das hélices
+    this.multRaio = 1;            // bónus do painel solar: multiplica o raio de aspiração
+    this.multForca = 1;           // bónus da turbina eólica: multiplica a força de sucção
   }
 
   // Recebe a potência (0 a 1) e calcula o raio de aspiração.
   // Quanto maior a potência, maior o raio: é a regra do jogo.
   definirPotencia(p) {
     this.potencia = constrain(p, 0, 1);
-    this.raioAspiracao = this.potencia * DRONE_RAIO_ASPIRACAO_MAX;
+    this.raioAspiracao = this.potencia * DRONE_RAIO_ASPIRACAO_MAX * this.multRaio;
   }
 
   // Corre em cada frame: move o drone e roda as hélices.
@@ -33,9 +35,10 @@ class Drone {
     this.y += (mouseY - this.y) * DRONE_SUAVIDADE;
 
     // constrain(valor, min, max) impede que o drone saia da zona de jogo:
-    // nos lados, no topo e em baixo (não entra no chão da cidade).
+    // nos lados, em cima (por baixo da faixa do HUD) e em baixo (não entra no chão).
     this.x = constrain(this.x, this.raio, width - this.raio);
     this.y = constrain(this.y, HUD_ALTURA + this.raio, height * SOLO_Y - this.raio);
+
     // As hélices giram mais depressa com a ventoinha ligada
     this.anguloHelice += 0.5 + this.potencia * 0.8;
   }
@@ -43,6 +46,15 @@ class Drone {
   desenhar() {
     push();
     translate(this.x, this.y);   // a partir daqui, (0, 0) é o centro do drone
+
+    // Com um power-up ativo, um anel pulsante à volta do drone mostra o bónus
+    if (this.multRaio > 1 || this.multForca > 1) {
+      const pulso = 1 + 0.08 * sin(frameCount * 0.2);
+      noFill();
+      stroke(...(this.multRaio > 1 ? COR.solar : COR.eolica), 210);
+      strokeWeight(3);
+      circle(0, 0, (this.raio * 2 + 20) * pulso);
+    }
 
     // Raio de aspiração: só se vê com a ventoinha ligada
     if (this.raioAspiracao > 0) {

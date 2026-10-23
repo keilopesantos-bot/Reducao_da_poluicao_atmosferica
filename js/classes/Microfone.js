@@ -29,7 +29,7 @@ class Microfone {
     this.potencia = 0;            // 0 (desligada) a 1 (máxima)
   }
 
-   // Pede o microfone e começa a calibrar. Tem de ser chamado a partir de um
+  // Pede o microfone e começa a calibrar. Tem de ser chamado a partir de um
   // CLIQUE: os browsers só deixam ativar o áudio depois de uma ação do utilizador.
   ativar() {
     if (this.estado === "a_pedir" || this.estado === "a_calibrar") return;

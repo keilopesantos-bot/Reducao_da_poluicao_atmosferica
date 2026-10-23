@@ -31,8 +31,9 @@ class Particula {
       // atan2 dá o ângulo da direção partícula -> drone; cos e sin transformam
       // esse ângulo num passo em x e em y.
       const ang = atan2(drone.y - this.y, drone.x - this.x);
-      this.x += cos(ang) * ASPIRACAO_FORCA;
-      this.y += sin(ang) * ASPIRACAO_FORCA;
+      const forca = ASPIRACAO_FORCA * drone.multForca;   // a turbina eólica reforça a sucção
+      this.x += cos(ang) * forca;
+      this.y += sin(ang) * forca;
     } else {
       // Sobe, com deriva lateral e uma ligeira ondulação (como fumo)
       this.x += this.vx + sin(frameCount * 0.03 + this.fase) * 0.3;

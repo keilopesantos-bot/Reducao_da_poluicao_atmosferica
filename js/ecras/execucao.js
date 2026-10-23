@@ -3,6 +3,7 @@
 // Fase 3: tempo, pontuação, AQI, vitória e derrota.
 // Fase 4: a ventoinha é controlada pelo microfone.
 // Fase 5: sons (ventoinha, recolha, vitória/derrota) e botão de silenciar.
+// Fase 6: power-ups de energia limpa (funcionalidade original).
 // ============================================================
 
 // Botão de silenciar (só com o rato). Fica na faixa do HUD, onde o drone nunca entra.
@@ -13,6 +14,7 @@ let drone;              // o drone do jogador
 let carros = [];        // lista de carros na estrada
 let particulas = [];    // lista de partículas de poluição em jogo
 let aqi;                // índice de qualidade do ar (BarraAQI)
+let powerups;           // power-ups de energia limpa (GestorPowerUps)
 let proximoSpawn = 0;   // instante (em ms) em que nasce a próxima partícula
 let inicioJogo = 0;     // instante (em ms) em que a partida começou
 let tempoRestante = DURACAO_JOGO;   // segundos que faltam
@@ -25,6 +27,7 @@ let escapadas = 0;      // quantas escaparam para o céu
 function iniciarExecucao() {
   drone = new Drone();
   aqi = new BarraAQI();
+  powerups = new GestorPowerUps();
   particulas = [];
   carros = [];
   for (let i = 0; i < NUM_CARROS; i++) {
@@ -66,6 +69,12 @@ function desenharExecucao() {
   if (millis() >= proximoSpawn) {
     gerarParticula();
     proximoSpawn = millis() + random(SPAWN_INTERVALO_MIN, SPAWN_INTERVALO_MAX);
+  }
+
+  // Power-ups: nascem, caem, são apanhados e dão bónus ao drone.
+  // Vêm ANTES de calcular a potência, porque o bónus altera o raio de aspiração.
+  if (powerups.atualizar(drone)) {
+    sons.tocarPowerUp();
   }
 
   // A ventoinha é controlada pelo volume do microfone (já com calibração e histerese).
@@ -119,8 +128,10 @@ function desenharExecucao() {
   desenharCidade();
   for (const c of carros) c.desenhar();
   for (const p of particulas) p.desenhar();
+  powerups.desenhar();
   drone.desenhar();
   desenharHUD(tempoRestante, pontuacao, aqi);
+  powerups.desenharIndicadores();
   if (microfone.estado === "pronto") {
     microfone.desenharPainel(width / 2 - 130, height - 46, 260);   // em baixo, ao centro
   }
@@ -139,7 +150,8 @@ function terminarJogo(vitoria, motivo) {
     tempo: constrain((millis() - inicioJogo) / 1000, 0, DURACAO_JOGO),
     aqi: aqi.valor,
     aspiradas: aspiradas,
-    escapadas: escapadas
+    escapadas: escapadas,
+    powerups: powerups.apanhados
   };
   sons.tocarFim(vitoria);            // jingle de vitória ou de derrota
   mudarEstado(RESULTADO);
